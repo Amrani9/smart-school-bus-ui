@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management | Smart School Bus Routing</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <h1>Smart School Bus Routing System</h1>
+        <h2>Student Management</h2>
+    </header>
+
+    <main class="content">
+        <!-- Student List -->
+        <section class="card">
+            <h3>Registered Students</h3>
+            <table class="data-table" id="studentTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Student Name</th>
+                        <th>Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>001</td>
+                        <td>Youssef Amrani</td>
+                        <td>Rue 32, Hay Mohammedia</td>
+                    </tr>
+                    <tr>
+                        <td>002</td>
+                        <td>Imane Talbi</td>
+                        <td>Quartier Californie, Casablanca</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Add Student Form -->
+        <section class="card">
+            <h3>Add New Student</h3>
+            <form id="addStudentForm" class="form-grid">
+                <input type="text" id="studentId" placeholder="Student ID" required>
+                <input type="text" id="studentName" placeholder="Student Name" required>
+                <input type="text" id="studentAddress" placeholder="Student Address" required>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn primary">Add Student</button>
+                    <button type="button" class="btn secondary" onclick="goToPage('dashboard.html')">Back to Dashboard</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Smart School Bus Routing System | Academic Prototype</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Smart School Bus Routing</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <h1>Smart School Bus Routing System</h1>
+        <h2>Manager Dashboard</h2>
+    </header>
+
+    <main class="dashboard">
+        <section class="stats">
+            <div class="card chart">
+                <h3>Total Fuel Consumption (Liters)</h3>
+                <canvas id="fuelChart" class="chart-placeholder">Chart Placeholder</canvas>
+            </div>
+
+            <div class="card chart">
+                <h3>Total Fuel Cost (MAD)</h3>
+                <canvas id="costChart" class="chart-placeholder">Chart Placeholder</canvas>
+            </div>
+        </section>
+
+        <section class="lists">
+            <div class="card list">
+                <h3>Top Drivers by Fuel Efficiency</h3>
+                <ul id="efficientDrivers">
+                    <li>Ahmed Idrissi — 5.3 L/100km</li>
+                    <li>Hassan El Alaoui — 5.7 L/100km</li>
+                    <li>Fatima Benali — 6.0 L/100km</li>
+                </ul>
+            </div>
+
+            <div class="card list">
+                <h3>Top Drivers by Punctuality</h3>
+                <ul id="punctualDrivers">
+                    <li>Youssef Amrani — 4.9/5</li>
+                    <li>Soukaina Rami — 4.8/5</li>
+                    <li>Imane Talbi — 4.7/5</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="actions">
+            <button class="btn primary" onclick="goToPage('drivers.html')">Driver Management</button>
+            <button class="btn primary" onclick="goToPage('students.html')">Student Management</button>
+            <button class="btn primary" onclick="goToPage('calculator.html')">Route Calculator</button>
+            <button class="btn secondary" onclick="logout()">Log Out</button>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Smart School Bus Routing System | Academic Prototype</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/charts.js"></script>
+
+</body>
+</html>

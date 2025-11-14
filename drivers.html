@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Management | Smart School Bus Routing</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <h1>Smart School Bus Routing System</h1>
+        <h2>Driver Management</h2>
+    </header>
+
+    <main class="content">
+        <!-- Driver List -->
+        <section class="card">
+            <h3>Registered Drivers</h3>
+            <table class="data-table" id="driverTable">
+                <thead>
+                    <tr>
+                        <th>Bus #</th>
+                        <th>Driver Name</th>
+                        <th>Contact</th>
+                        <th>Fuel (L)</th>
+                        <th>Cost (MAD)</th>
+                        <th>Punctuality</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>7</td>
+                        <td>Ahmed Idrissi</td>
+                        <td>+212 6 87 23 45 10</td>
+                        <td>23.5</td>
+                        <td>220</td>
+                        <td>4.5 / 5</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Hassan El Alaoui</td>
+                        <td>+212 6 45 32 11 20</td>
+                        <td>25.2</td>
+                        <td>240</td>
+                        <td>4.2 / 5</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Add Driver Form -->
+        <section class="card">
+            <h3>Add New Driver</h3>
+            <form id="addDriverForm" class="form-grid">
+                <input type="text" id="busNumber" placeholder="Bus Number" required>
+                <input type="text" id="driverName" placeholder="Driver Name" required>
+                <input type="text" id="contactInfo" placeholder="Contact Info" required>
+                <input type="number" id="fuelLiters" placeholder="Fuel (Liters)" required>
+                <input type="number" id="fuelCost" placeholder="Fuel Cost (MAD)" required>
+                <input type="number" id="punctuality" placeholder="Punctuality (1–5)" min="1" max="5" step="0.1" required>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn primary">Add Driver</button>
+                    <button type="button" class="btn secondary" onclick="goToPage('dashboard.html')">Back to Dashboard</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Smart School Bus Routing System | Academic Prototype</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

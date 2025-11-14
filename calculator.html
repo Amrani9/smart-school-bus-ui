@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route Calculator | Smart School Bus Routing</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <h1>Smart School Bus Routing System</h1>
+        <h2>Route Calculator</h2>
+    </header>
+
+    <main class="content">
+        <!-- Route Simulation Section -->
+        <section class="card">
+            <h3>Route Optimization Simulator</h3>
+            <p>This page simulates the route computation process using saved student and driver data.</p>
+
+            <div class="btn-group">
+                <button class="btn primary" onclick="computeRoute()">Compute Route</button>
+                <button class="btn secondary" onclick="goToPage('dashboard.html')">Back to Dashboard</button>
+            </div>
+
+            <!-- Computation Results -->
+            <div id="routeSummary" class="result-box hidden">
+                <h4>Computation Summary</h4>
+                <p><b>Buses Used:</b> <span id="busesUsed">–</span></p>
+                <p><b>Total Distance:</b> <span id="totalDistance">–</span> km</p>
+                <p><b>Estimated Fuel:</b> <span id="fuelUsed">–</span> L</p>
+                <p><b>Estimated Cost:</b> <span id="fuelCost">–</span> MAD</p>
+
+                <label for="assignDriver"><b>Assign to Driver:</b></label>
+                <select id="assignDriver">
+                    <option>Select Driver</option>
+                    <option>Ahmed Idrissi</option>
+                    <option>Hassan El Alaoui</option>
+                    <option>Fatima Benali</option>
+                </select>
+
+                <div class="btn-group">
+                    <button class="btn primary" onclick="downloadReport()">Download Report</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Smart School Bus Routing System | Academic Prototype</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
