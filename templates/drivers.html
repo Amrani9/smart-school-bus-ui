@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Driver Management | Smart School Bus Routing</title>
+
+    <!-- FIXED -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        /* ============================
+           CLEAN CENTERED MODAL
+           ============================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-card {
+            background: #fff;
+            padding: 1.8rem 2rem;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.15);
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal-card h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .modal-card label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.7rem;
+            display: block;
+        }
+
+        .modal-card input {
+            margin-top: 0.35rem;
+            width: 100%;
+        }
+
+        .btn-group {
+            margin-top: 1.4rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.6rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.97); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+
+<body>
+<div class="page-shell">
+
+<!-- HEADER -->
+<header class="header">
+    <div class="header-inner">
+        <div class="header-brand">
+            <div class="app-logo">🚌</div>
+            <div>
+                <div class="app-title">Smart School Bus Routing</div>
+                <div class="app-subtitle">Driver Management</div>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div class="user-pill">Manager</div>
+            <button class="btn btn-secondary" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</header>
+
+<!-- MAIN WRAPPER -->
+<main class="main">
+<div class="main-inner">
+
+<!-- GRID: SIDEBAR + MAIN AREA -->
+<div class="dashboard-page">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="card sidebar-card">
+            <div class="sidebar-heading">Navigation</div>
+            <nav class="sidebar-nav">
+                <button class="nav-link" onclick="goToPage('dashboard.html')">Overview</button>
+                <button class="nav-link nav-link-active">Drivers</button>
+                <button class="nav-link" onclick="goToPage('students.html')">Students</button>
+                <button class="nav-link" onclick="goToPage('calculator.html')">Route Planner</button>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <section class="dashboard-main">
+
+        <!-- DRIVER LIST -->
+        <div class="card table-card">
+            <div class="card-title">Registered Drivers</div>
+
+            <div class="table-wrapper">
+                <table class="table" id="driverTable">
+                    <thead>
+                        <tr>
+                            <th>Bus #</th>
+                            <th>Driver Name</th>
+                            <th>Contact</th>
+                            <th>Total Fuel (L)</th>
+                            <th>Total Cost (MAD)</th>
+                            <th>Punctuality</th>
+                            <th>Daily Entry</th>
+                        </tr>
+                    </thead>
+                    <tbody id="driverTableBody">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ADD DRIVER FORM -->
+        <div class="card">
+            <div class="card-title">Add New Driver</div>
+
+            <form id="addDriverForm" class="form">
+                <div class="field">
+                    <label>Bus Number</label>
+                    <input type="text" id="busNumber" required>
+                </div>
+
+                <div class="field">
+                    <label>Driver Name</label>
+                    <input type="text" id="driverName" required>
+                </div>
+
+                <div class="field">
+                    <label>Contact Info</label>
+                    <input type="text" id="contactInfo" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">Add Driver</button>
+            </form>
+        </div>
+
+    </section><!-- dashboard-main -->
+
+</div><!-- dashboard-page -->
+
+</div><!-- main-inner -->
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+    &copy; 2025 Smart School Bus Routing System — Academic Prototype
+</footer>
+
+</div><!-- page-shell -->
+
+<!-- ================================
+     CLEAN CENTERED DAILY ENTRY MODAL
+     ================================ -->
+<div id="entryModal" class="modal-overlay hidden">
+    <div class="modal-card">
+        <h3>Add Daily Driver Entry</h3>
+
+        <label>Punctuality (1–5)</label>
+        <input type="number" id="punctInput" min="1" max="5" step="0.1" />
+
+        <label>Fuel Used Today (L)</label>
+        <input type="number" id="fuelInput" step="0.1" />
+
+        <label>Fuel Cost Today (MAD)</label>
+        <input type="number" id="costInput" step="0.1" />
+
+        <div class="btn-group">
+            <button class="btn btn-secondary" id="cancelEntryBtn">Cancel</button>
+            <button class="btn btn-primary" id="saveEntryBtn">Save Entry</button>
+        </div>
+    </div>
+</div>
+
+<!-- JS (FIXED) -->
+<script src="{{ url_for('static', filename='js/data.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+<script>
+/* ============================================================
+   RENDER DRIVER TABLE
+   ============================================================ */
+function renderDriverTable() {
+    const tbody = document.getElementById("driverTableBody");
+    tbody.innerHTML = "";
+
+    drivers.forEach((d, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${d.busNumber}</td>
+            <td>${d.name}</td>
+            <td>${d.contact}</td>
+            <td>${d.fuelLiters.toFixed(1)}</td>
+            <td>${d.costMAD.toFixed(1)}</td>
+            <td>${d.punctuality.toFixed(1)} / 5</td>
+            <td>
+                <button class="btn btn-primary btn-sm add-entry-btn" data-id="${index}">
+                    + Add
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    attachModalListeners();
+}
+
+/* ============================================================
+   MODAL HANDLING
+   ============================================================ */
+let activeDriverIndex = null;
+
+function attachModalListeners() {
+    document.querySelectorAll(".add-entry-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            activeDriverIndex = parseInt(btn.dataset.id);
+            document.getElementById("entryModal").classList.remove("hidden");
+        });
+    });
+}
+
+document.getElementById("cancelEntryBtn").onclick = () => {
+    document.getElementById("entryModal").classList.add("hidden");
+};
+
+/* ============================================================
+   SAVE ENTRY
+   ============================================================ */
+document.getElementById("saveEntryBtn").onclick = () => {
+    if (activeDriverIndex === null) return;
+
+    const punct = parseFloat(punctInput.value);
+    const fuel = parseFloat(fuelInput.value);
+    const cost = parseFloat(costInput.value);
+
+    if (isNaN(punct) && isNaN(fuel) && isNaN(cost)) {
+        showMessage("Please fill at least one field.", "error");
+        return;
+    }
+
+    const d = drivers[activeDriverIndex];
+
+    if (!isNaN(fuel)) d.fuelLiters += fuel;
+    if (!isNaN(cost)) d.costMAD += cost;
+    if (!isNaN(punct)) d.punctuality = (d.punctuality + punct) / 2;
+
+    addDailyDriverLog(d.busNumber, { fuelLiters: fuel, costMAD: cost, punctuality: punct });
+
+    punctInput.value = "";
+    fuelInput.value = "";
+    costInput.value = "";
+
+    renderDriverTable();
+
+    document.getElementById("entryModal").classList.add("hidden");
+    showMessage("Daily entry saved!", "success");
+};
+
+/* ============================================================
+   ADD NEW DRIVER
+   ============================================================ */
+document.getElementById("addDriverForm").addEventListener("submit", e => {
+    e.preventDefault();
+
+    drivers.push({
+        busNumber: busNumber.value.trim(),
+        name: driverName.value.trim(),
+        contact: contactInfo.value.trim(),
+        fuelLiters: 0,
+        costMAD: 0,
+        punctuality: 5.0
+    });
+
+    renderDriverTable();
+    e.target.reset();
+    showMessage("New driver added!", "success");
+});
+
+/* ============================================================
+   INITIAL LOAD
+   ============================================================ */
+document.addEventListener("DOMContentLoaded", renderDriverTable);
+</script>
+
+</body>
+</html>

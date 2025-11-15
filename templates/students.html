@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Management | Smart School Bus Routing</title>
+
+    <!-- FIXED -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+<div class="page-shell">
+
+<!-- HEADER -->
+<header class="header">
+    <div class="header-inner">
+        <div class="header-brand">
+            <div class="app-logo">🚌</div>
+            <div>
+                <div class="app-title">Smart School Bus Routing</div>
+                <div class="app-subtitle">Student Management</div>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div class="user-pill">Manager</div>
+            <button class="btn btn-secondary" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+<div class="main-inner">
+
+<!-- SIDEBAR + MAIN GRID -->
+<div class="dashboard-page">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="card sidebar-card">
+            <div class="sidebar-heading">Navigation</div>
+            <nav class="sidebar-nav">
+                <button class="nav-link" onclick="goToPage('dashboard.html')">Overview</button>
+                <button class="nav-link" onclick="goToPage('drivers.html')">Drivers</button>
+                <button class="nav-link nav-link-active">Students</button>
+                <button class="nav-link" onclick="goToPage('calculator.html')">Route Planner</button>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- MAIN STUDENTS CONTENT -->
+    <section class="dashboard-main">
+
+        <!-- HEADER ROW -->
+        <div class="dashboard-header-row">
+            <div>
+                <h2 class="page-title">Students</h2>
+                <p class="page-subtitle">
+                    Registered students and their stored addresses in the prototype dataset.
+                </p>
+            </div>
+        </div>
+
+        <!-- STUDENT LIST -->
+        <div class="card table-card">
+            <div class="card-title">Registered Students</div>
+            <div class="table-wrapper">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Student Name</th>
+                            <th>Address</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ADD STUDENT FORM -->
+        <div class="card">
+            <h3 class="card-title">Add New Student</h3>
+
+            <form id="addStudentForm" class="form" style="margin-top: 1rem;">
+                <input type="text" id="studentId" placeholder="Student ID" required />
+                <input type="text" id="studentName" placeholder="Student Name" required />
+                <input type="text" id="studentAddress" placeholder="Student Address" required />
+
+                <div class="btn-group" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-primary">Add Student</button>
+                    <button type="button" class="btn btn-secondary" onclick="goToPage('dashboard.html')">
+                        Back to Dashboard
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </section>
+
+</div><!-- dashboard-page -->
+
+</div><!-- main-inner -->
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+    &copy; 2025 Smart School Bus Routing System — Academic Prototype
+</footer>
+
+</div><!-- page-shell -->
+
+<!-- JS FILES (FIXED) -->
+<script src="{{ url_for('static', filename='js/data.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+<script>
+/* ============================================================
+   RENDER STUDENT TABLE
+   ============================================================ */
+function renderStudentTable() {
+    const tbody = document.getElementById("studentTableBody");
+    tbody.innerHTML = "";
+
+    students.forEach(s => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${s.id}</td>
+            <td>${s.name}</td>
+            <td>${s.address}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+/* ============================================================
+   ADD NEW STUDENT (UI ONLY)
+   ============================================================ */
+document.getElementById("addStudentForm").addEventListener("submit", e => {
+    e.preventDefault();
+
+    const id = document.getElementById("studentId").value.trim();
+    const name = document.getElementById("studentName").value.trim();
+    const address = document.getElementById("studentAddress").value.trim();
+
+    if (!id || !name || !address) return;
+
+    students.push({
+        id: id,
+        name: name,
+        address: address
+    });
+
+    renderStudentTable();
+    e.target.reset();
+
+    showMessage("New student added!", "success");
+});
+
+/* ============================================================
+   INITIAL RENDER
+   ============================================================ */
+document.addEventListener("DOMContentLoaded", renderStudentTable);
+</script>
+
+</body>
+</html>

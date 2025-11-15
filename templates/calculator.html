@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Route Calculator | Smart School Bus Routing</title>
+
+    <!-- Global theme -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        /* ===========================
+           Layout refinements
+           =========================== */
+
+        /* Main grid for left/right columns – keeps things aligned and airy */
+        .route-planner-page {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+            gap: 1.75rem;
+            align-items: flex-start;
+        }
+
+        .route-left,
+        .route-right {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* Students table scroll area */
+        .route-students-wrapper {
+            max-height: 260px;
+            overflow-y: auto;
+            border-radius: 14px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        /* Map container + header fix */
+        .map-card .card-header {
+            padding: 0.9rem 1.25rem 0.5rem;
+        }
+
+        .map-card .card-title {
+            margin: 0;
+            font-size: 0.95rem;
+            letter-spacing: 0.02em;
+        }
+
+        #map {
+            width: 100%;
+            height: 380px;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        /* Hide hybrid slider row when attribute hidden is set */
+        #hybridRow[hidden] {
+            display: none !important;
+        }
+
+        /* Students table buttons */
+        .students-table td button {
+            border-radius: 14px;
+            padding: 0.45rem 0.9rem;
+            font-weight: 600;
+        }
+
+        /* ===========================
+           Objective section redesign
+           =========================== */
+
+        .objective-field {
+            margin-top: 0.75rem;
+        }
+
+        .objective-label-main {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.93rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .objective-toggle {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        /* Hide native radios but still keep them accessible */
+        .objective-toggle input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .objective-pill {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.45rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid var(--border-subtle);
+            background: #f9fafb;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease,
+                        border-color 0.15s ease, box-shadow 0.15s ease,
+                        transform 0.08s ease;
+        }
+
+        .objective-pill:hover {
+            background: #eef2ff;
+            border-color: #c7d2fe;
+            transform: translateY(-0.5px);
+        }
+
+        /* Checked state: nice blue pill */
+        .objective-toggle input[type="radio"]:checked + .objective-pill {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.16);
+        }
+
+        .objective-help {
+            margin-top: 0.3rem;
+            font-size: 0.78rem;
+            color: #6b7280;
+        }
+
+        /* Hybrid slider styling tweak */
+        #hybridRow.field {
+            margin-top: 0.75rem;
+            padding: 0.65rem 0.8rem 0.7rem;
+            border-radius: 12px;
+            background: #f9fafb;
+            border: 1px dashed var(--border-subtle);
+        }
+
+        #hybridRow label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #111827;
+        }
+
+        #hybridRow input[type="range"] {
+            width: 100%;
+            margin-top: 0.4rem;
+        }
+
+        /* Make summary card consistent with others */
+        #summaryBox {
+            margin-top: 0.25rem;
+        }
+
+        /* Small top margin before routes container */
+        #routesContainer {
+            margin-top: 0.75rem;
+        }
+    </style>
+</head>
+
+<body>
+<div class="page-shell">
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="header-brand">
+                <div class="app-logo">🚌</div>
+                <div>
+                    <div class="app-title">Smart School Bus Routing</div>
+                    <div class="app-subtitle">Route Planner</div>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div class="user-pill">Manager</div>
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="main">
+        <div class="main-inner">
+
+            <div class="dashboard-page">
+
+                <!-- SIDEBAR (identical to dashboard page) -->
+                <aside class="sidebar">
+                    <div class="card sidebar-card">
+                        <div class="sidebar-heading">Navigation</div>
+                        <nav class="sidebar-nav">
+                            <button class="nav-link" onclick="goToPage('dashboard.html')">Overview</button>
+                            <button class="nav-link" onclick="goToPage('drivers.html')">Drivers</button>
+                            <button class="nav-link" onclick="goToPage('students.html')">Students</button>
+                            <button class="nav-link nav-link-active">Route planner</button>
+                        </nav>
+                    </div>
+                </aside>
+
+                <!-- MAIN ROUTE PLANNER CONTENT -->
+                <section class="dashboard-main">
+
+                    <div class="dashboard-header-row">
+                        <div>
+                            <h1 class="page-title">Route Calculator</h1>
+                            <p class="page-subtitle">
+                                Compute optimal school bus routes using real Google Maps traffic data.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- GRID: LEFT (inputs) + RIGHT (map/results) -->
+                    <div class="route-planner-page">
+
+                        <!-- LEFT COLUMN -->
+                        <div class="route-left">
+
+                            <!-- Students table -->
+                            <div class="card table-card">
+                                <div class="card-header">
+                                    <div>
+                                        <div class="card-title">Students</div>
+                                        <p class="card-subtitle">
+                                            Toggle which students are included in this optimization run.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="route-students-wrapper">
+                                    <table class="table students-table">
+                                        <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Address</th>
+                                            <th>Route</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="studentsTableBody">
+                                        <!-- Filled dynamically by calculator.js -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Add student -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <div>
+                                        <div class="card-title">Add student (for this run only)</div>
+                                        <p class="card-subtitle">
+                                            Quickly test a new pickup without modifying the database.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="card-body route-form">
+                                    <div class="field">
+                                        <label>Student name</label>
+                                        <input id="inlineStudentName" type="text" placeholder="e.g. Sara El Fassi">
+                                    </div>
+
+                                    <div class="field">
+                                        <label>Address or Google Maps link</label>
+                                        <input id="inlineStudentAddress" type="text"
+                                               placeholder="Paste Google Maps URL or type address">
+                                        <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Powered by Google</div>
+                                    </div>
+
+                                    <button class="btn btn-primary" id="inlineAddBtn">Add to list</button>
+                                </div>
+                            </div>
+
+                            <!-- Routing options -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <div>
+                                        <div class="card-title">Routing options</div>
+                                        <p class="card-subtitle">
+                                            Buses, capacity, departure time and optimization objective.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="card-body route-form">
+
+                                    <div class="grid-two">
+                                        <div class="field">
+                                            <label>Buses</label>
+                                            <input id="busCount" type="number" value="1" min="1">
+                                        </div>
+                                        <div class="field">
+                                            <label>Seats per bus</label>
+                                            <input id="seatsPerBus" type="number" value="10" min="1">
+                                        </div>
+                                    </div>
+
+                                    <div class="field">
+                                        <label>Departure time</label>
+                                        <input id="departureTime" type="datetime-local">
+                                        <p class="text-subtle" style="font-size:0.8rem;">
+                                            Default is <strong>07:30</strong> if left empty.
+                                        </p>
+                                    </div>
+
+                                    <div class="grid-two">
+                                        <div class="field">
+                                            <label>Max speed (km/h)</label>
+                                            <input id="maxSpeedKmh" type="number" value="60" min="15" max="120">
+                                        </div>
+                                        <div class="field">
+                                            <label>Fuel consumption (L/100km)</label>
+                                            <input id="fuelConsumption" type="number" value="6.0" min="1">
+                                        </div>
+                                    </div>
+
+                                    <!-- Objective section (redesigned) -->
+                                    <div class="field objective-field">
+                                        <span class="objective-label-main">Objective</span>
+                                        <div class="objective-toggle">
+                                            <div>
+                                                <input type="radio" id="objTime" name="objective" value="time" checked>
+                                                <label for="objTime" class="objective-pill">Time</label>
+                                            </div>
+                                            <div>
+                                                <input type="radio" id="objDistance" name="objective" value="distance">
+                                                <label for="objDistance" class="objective-pill">Distance</label>
+                                            </div>
+                                            <div>
+                                                <input type="radio" id="objHybrid" name="objective" value="hybrid">
+                                                <label for="objHybrid" class="objective-pill">Hybrid</label>
+                                            </div>
+                                        </div>
+                                        <p class="objective-help">
+                                            Choose whether to optimize for arrival time, total distance, or a hybrid
+                                            trade-off.
+                                        </p>
+                                    </div>
+
+                                    <!-- Hybrid slider -->
+                                    <div id="hybridRow" class="field" hidden>
+                                        <label>Hybrid weight (time vs distance)</label>
+                                        <input id="weightDuration" type="range" min="0" max="1" step="0.05" value="0.7">
+                                        <div style="display:flex;justify-content:space-between;font-size:12px;color:#6b7280;margin-top:0.15rem;">
+                                            <span>Time: <strong id="weightVal">0.70</strong></span>
+                                            <span>Distance: <strong id="weightValDist">0.30</strong></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="field">
+                                        <label>School / Depot name</label>
+                                        <input id="schoolName" type="text" placeholder="e.g. AUI School Campus">
+                                        <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Powered by Google</div>
+                                    </div>
+
+                                    <p class="text-muted" style="font-size:0.8rem;">
+                                        Click the map to set the school location.
+                                        Hold <strong>CTRL + click</strong> to add a manual stop.
+                                    </p>
+
+                                    <button class="btn btn-primary" id="computeRouteBtn">Compute route</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT COLUMN -->
+                        <div class="route-right">
+
+                            <!-- Map -->
+                            <div class="card map-card">
+                                <div class="card-header">
+                                    <div class="card-title">Map</div>
+                                </div>
+                                <div id="map"></div>
+                            </div>
+
+                            <!-- Summary -->
+                            <div class="card" id="summaryBox">
+                                <h3 class="card-title">Summary</h3>
+                                <p class="card-subtitle">Click <strong>“Compute route”</strong> to see results.</p>
+                            </div>
+
+                            <!-- Routes -->
+                            <div class="stack-y" id="routesContainer">
+                                <!-- Filled dynamically -->
+                            </div>
+
+                        </div>
+
+                    </div><!-- /route-planner-page -->
+
+                </section>
+
+            </div><!-- dashboard-page -->
+
+        </div><!-- main-inner -->
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        &copy; 2025 Smart School Bus Routing System — Academic Prototype
+    </footer>
+
+</div><!-- page-shell -->
+
+<!-- JS FILES -->
+<script src="{{ url_for('static', filename='js/data.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<script src="{{ url_for('static', filename='js/calculator.js') }}"></script>
+
+<!-- PDF EXPORT -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- GOOGLE MAPS -->
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBHmixdoUdzpstrt3tGXpsIqGqWHltDRCk&libraries=places&callback=initRoutePlanner">
+</script>
+
+</body>
+</html>

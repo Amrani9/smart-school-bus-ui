@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | Smart School Bus Routing</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="page-shell">
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-inner">
+        <div class="header-brand">
+          <div class="app-logo">🚌</div>
+          <div>
+            <div class="app-title">Smart School Bus Routing</div>
+            <div class="app-subtitle">Manager Console</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="main-inner">
+        <section class="login-page">
+          <div class="card login-card">
+            <h1 class="page-title">Sign in as manager</h1>
+            <p class="page-subtitle">
+              This is a prototype interface. Use the demo credentials below to access the dashboard.
+            </p>
+
+            <form id="loginForm" class="form" autocomplete="on">
+              <div class="field">
+                <label for="username">Username</label>
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  placeholder="manager"
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <label for="password">Password</label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-full">
+                Sign in
+              </button>
+            </form>
+
+            <p class="note">
+              Demo credentials:
+              <strong>manager / admin123</strong>
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <p>&copy; 2025 Smart School Bus Routing System &mdash; Academic prototype</p>
+    </footer>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

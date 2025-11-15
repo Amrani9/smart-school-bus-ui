@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | Smart School Bus Routing</title>
+
+    <!-- FIXED -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+<div class="page-shell">
+
+<!-- HEADER -->
+<header class="header">
+    <div class="header-inner">
+        <div class="header-brand">
+            <div class="app-logo">🚌</div>
+            <div>
+                <div class="app-title">Smart School Bus Routing</div>
+                <div class="app-subtitle">Manager Dashboard</div>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div class="user-pill">Manager</div>
+            <button class="btn btn-secondary" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+<div class="main-inner">
+
+<!-- DASHBOARD GRID: SIDEBAR + MAIN AREA -->
+<div class="dashboard-page">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="card sidebar-card">
+            <div class="sidebar-heading">Navigation</div>
+            <nav class="sidebar-nav">
+                <button class="nav-link nav-link-active">Overview</button>
+                <button class="nav-link" onclick="goToPage('drivers.html')">Drivers</button>
+                <button class="nav-link" onclick="goToPage('students.html')">Students</button>
+                <button class="nav-link" onclick="goToPage('calculator.html')">Route planner</button>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <section class="dashboard-main">
+
+        <!-- KPI CARDS -->
+        <div class="kpi-grid">
+
+            <div class="card kpi-card">
+                <div class="kpi-label">Total Drivers</div>
+                <div id="totalDrivers" class="kpi-value">0</div>
+                <div class="kpi-meta">Registered in the system</div>
+            </div>
+
+            <div class="card kpi-card">
+                <div class="kpi-label">Students</div>
+                <div id="totalStudents" class="kpi-value">0</div>
+                <div class="kpi-meta">Stored in the database</div>
+            </div>
+
+            <div class="card kpi-card">
+                <div class="kpi-label">Stored Route Plans</div>
+                <div id="storedRoutes" class="kpi-value">0</div>
+                <div class="kpi-meta">Computed & saved</div>
+            </div>
+
+            <div class="card kpi-card">
+                <div class="kpi-label">On-time Arrival</div>
+                <div id="onTimePercent" class="kpi-value">0%</div>
+                <div class="kpi-meta">Average across all drivers</div>
+            </div>
+
+        </div>
+
+        <!-- CHARTS GRID -->
+        <div class="chart-grid">
+
+            <!-- FUEL CHART -->
+            <div class="card">
+                <div class="card-title">Fuel Consumption Trend</div>
+                <div class="chart-canvas-wrapper">
+                    <canvas id="fuelChart"></canvas>
+                </div>
+            </div>
+
+            <!-- FUEL COST CHART -->
+            <div class="card">
+                <div class="card-title">Fuel Cost Trend</div>
+                <div class="chart-canvas-wrapper">
+                    <canvas id="costChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ANALYTICS TABLES -->
+        <div class="chart-grid">
+
+            <!-- TOP 5 LOWEST FUEL -->
+            <div class="card">
+                <div class="card-title">Top 5 Drivers — Lowest Fuel Consumption</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Driver</th>
+                            <th>Bus</th>
+                            <th>Fuel (L)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topFuelTable"></tbody>
+                </table>
+            </div>
+
+            <!-- TOP 5 BEST PUNCTUALITY -->
+            <div class="card">
+                <div class="card-title">Top 5 Drivers — Best Punctuality</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Driver</th>
+                            <th>Bus</th>
+                            <th>Punctuality</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topPunctTable"></tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </section>
+
+</div><!-- dashboard-page -->
+
+</div><!-- main-inner -->
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+    &copy; 2025 Smart School Bus Routing System — Academic Prototype
+</footer>
+
+</div><!-- page-shell -->
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- FIXED: All static paths -->
+<script src="{{ url_for('static', filename='js/data.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+
+<script>
+/* ============================================================
+   DASHBOARD DATA POPULATION
+   ============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+
+    const totals = getDashboardTotals();
+
+    document.getElementById("totalDrivers").textContent = totals.totalDrivers;
+    document.getElementById("totalStudents").textContent = totals.totalStudents;
+    document.getElementById("storedRoutes").textContent = totals.totalRoutes;
+    document.getElementById("onTimePercent").textContent = totals.onTimePercent + "%";
+
+    // TOP FUEL
+    const fuelList = getTopDriversByFuel(5);
+    const fuelTable = document.getElementById("topFuelTable");
+    fuelList.forEach(d => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${d.name}</td>
+            <td>BUS-${d.busNumber}</td>
+            <td>${d.fuelLiters.toFixed(1)} L</td>
+        `;
+        fuelTable.appendChild(row);
+    });
+
+    // TOP PUNCTUALITY
+    const punctList = getTopDriversByPunctuality(5);
+    const punctTable = document.getElementById("topPunctTable");
+    punctList.forEach(d => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${d.name}</td>
+            <td>BUS-${d.busNumber}</td>
+            <td>${d.punctuality.toFixed(1)} / 5</td>
+        `;
+        punctTable.appendChild(row);
+    });
+
+});
+</script>
+
+</body>
+</html>
